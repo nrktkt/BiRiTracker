@@ -2,6 +2,7 @@
 #############
 
 gen/com/
+proguard-project.txt
 
 #################
 ## Eclipse
