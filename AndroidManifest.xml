@@ -22,6 +22,42 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.blackdoor.biritracker.CreateActivity"
+            android:label="@string/title_activity_create"
+            android:parentActivityName="com.blackdoor.andytictactoe.WelcomeActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.blackdoor.andytictactoe.WelcomeActivity" />
+        </activity>
+        <activity
+            android:name="com.blackdoor.biritracker.SelectActivity"
+            android:label="@string/title_activity_select"
+            android:parentActivityName="com.blackdoor.andytictactoe.WelcomeActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.blackdoor.andytictactoe.WelcomeActivity" />
+        </activity>
+        <activity
+            android:name="com.blackdoor.biritracker.LeaderActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_leader"
+            android:parentActivityName="com.blackdoor.biritracker.CreateActivity"
+            android:theme="@style/FullscreenTheme" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.blackdoor.biritracker.CreateActivity" />
+        </activity>
+        <activity
+            android:name="com.blackdoor.biritracker.FollowerActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_follower"
+            android:parentActivityName="com.blackdoor.biritracker.SelectActivity"
+            android:theme="@style/FullscreenTheme" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.blackdoor.biritracker.SelectActivity" />
+        </activity>
     </application>
 
 </manifest>
