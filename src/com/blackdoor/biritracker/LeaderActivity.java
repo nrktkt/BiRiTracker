@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import pref.prefrences;
 import server.BiRiServer;
@@ -62,6 +64,7 @@ public class LeaderActivity extends Activity {
 	private String devID;
 	private LatLng lastGoodLoc;
 	private Socket connection;
+	private Timer updateTimer;
 	
 
 	@Override
@@ -79,22 +82,79 @@ public class LeaderActivity extends Activity {
 	
 	protected void onStart(){
 		devID = Settings.Secure.ANDROID_ID;
-		
+		createRide();
+		updateTimer = new Timer(true);
+		updateTimer.scheduleAtFixedRate(new TimerTask(){
+
+			@Override
+			public void run() {
+				updateLocationOnServer();				
+			}
+			
+		}, 10000, 30000);
 	}
 	
 	private void createRide(){
 		connectToServer();
+		updateLocation();
 		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
 		BufferedReader in = new BufferedReader(
 		        new InputStreamReader(connection.getInputStream()));
 		out.println(BiRiServer.Codes.CREATE.name() + prefrences.NULL + 
 				rideName + prefrences.NULL + 
 				devID + prefrences.NULL +
+				lastGoodLoc.latitude + prefrences.NULL +
+				lastGoodLoc.longitude + prefrences.NULL
 				);
+		connection.close();
+		if(!in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
+			throw new Exception("Ride creation failed");
+		}
+		
+	}
+	private void updateLocation(){
+		
+	}
+	
+	private void updateLocationOnServer(){
+		updateLocation();
+		connectToServer();
+		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(connection.getInputStream()));
+		out.println(BiRiServer.Codes.SUBMIT.name() + prefrences.NULL +
+				devID + prefrences.NULL +
+				lastGoodLoc.latitude + prefrences.NULL +
+				lastGoodLoc.longitude + prefrences.NULL);
+		connection.close();
+		if(!in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
+			throw new Exception("Failed to update location on server");
+		}
 	}
 	
 	private void connectToServer(){
 		connection = new Socket(prefrences.serverAddress, prefrences.defaultPort);
+	}
+	
+	public void onButtonEndRide(View v){
+		int tryOut = 5;
+		for(int i = 0; i < tryOut; i++){
+			connectToServer();
+			PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(connection.getInputStream()));
+			out.println(BiRiServer.Codes.DESTROY.name() + prefrences.NULL +
+					devID + prefrences.NULL);
+			connection.close();
+			if(in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
+				i = tryOut*2;
+			}
+		}
+	}
+	@Override
+	protected void onDestroy(){
+		updateTimer.cancel();
+		super.onDestroy();
 	}
 	
 	//just get that all out of the way...
@@ -162,7 +222,7 @@ public class LeaderActivity extends Activity {
 		// Upon interacting with UI controls, delay any scheduled hide()
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
-		findViewById(R.id.dummy_button).setOnTouchListener(
+		findViewById(R.id.buttonEndRide).setOnTouchListener(
 				mDelayHideTouchListener);
 	}
 
