@@ -9,7 +9,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 
 import pref.prefrences;
 
@@ -140,5 +143,80 @@ public class BiRiServer {
 	    	
 	    }
 	}
-
+	
+	private class BiRiDatabase{
+		private ConcurrentHashMap<String, String> leaders;
+		private ConcurrentHashMap<String, String> rides;
+		private final String LAT = "LAT_";
+		private final String LNG = "LNG_";
+		
+		
+		public BiRiDatabase(){
+			leaders = new ConcurrentHashMap<String,String>();
+			rides = new ConcurrentHashMap<String,String>();
+		}
+		
+		/**
+		 * 
+		 * @param rideName
+		 * @param devID
+		 * @param lat
+		 * @param lng
+		 * @return true if ride has been created successfully.
+		 */
+		public boolean createRide(String rideName, String devID, String lat, String lng){
+			if(rides.putIfAbsent(rideName, devID) == null){
+				leaders.put(devID, rideName);
+				rides.put(LAT+rideName, lat);
+				rides.put(LNG+rideName, lng);			
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+		public void destroyRide(String devID){
+			String rideName = leaders.get(devID);
+			if(rideName != null){
+				leaders.remove(devID);
+				rides.remove(LAT+rideName);
+				rides.remove(LNG+rideName);
+				rides.remove(rideName);
+			}
+		}
+		public void submitLoc(String devID, String lat, String lng){
+			String rideName = leaders.get(devID);
+			if(rideName != null){
+				rides.replace(LAT+rideName, lat);
+				rides.replace(LNG+rideName, lng);
+			}
+		}
+		/**
+		 * 
+		 * @param rideName
+		 * @return latitude and longitude as a null separated string
+		 * @throws Exception
+		 */
+		public String requestLoc(String rideName) throws Exception{
+			String lat = rides.get(LAT+rideName);
+			String lng = rides.get(LNG+rideName);
+			if(lat == null || lng == null)
+				throw new Exception("Could not find Ride.");
+			return lat + NULL + lng + NULL;
+		}
+		
+		public String requestRideList(){
+			String rides = "";
+			for(String r : this.rides.keySet()){
+				if(!(r.substring(0, 4) == "LAT_" || r.substring(0, 4) == "LNG_")){
+					rides += r + NULL;
+				}
+			}
+			return rides;
+		}
+		
+		
+		
+	}
+	
 }

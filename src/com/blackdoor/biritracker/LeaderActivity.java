@@ -106,11 +106,11 @@ public class LeaderActivity extends Activity {
 				lastGoodLoc.latitude + prefrences.NULL +
 				lastGoodLoc.longitude + prefrences.NULL
 				);
-		connection.close();
+		
 		if(!in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
 			throw new Exception("Ride creation failed");
 		}
-		
+		connection.close();
 	}
 	private void updateLocation(){
 		
@@ -126,10 +126,11 @@ public class LeaderActivity extends Activity {
 				devID + prefrences.NULL +
 				lastGoodLoc.latitude + prefrences.NULL +
 				lastGoodLoc.longitude + prefrences.NULL);
-		connection.close();
+		
 		if(!in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
 			throw new Exception("Failed to update location on server");
 		}
+		connection.close();
 	}
 	
 	private void connectToServer(){
@@ -145,10 +146,11 @@ public class LeaderActivity extends Activity {
 			        new InputStreamReader(connection.getInputStream()));
 			out.println(BiRiServer.Codes.DESTROY.name() + prefrences.NULL +
 					devID + prefrences.NULL);
-			connection.close();
+			
 			if(in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
 				i = tryOut*2;
 			}
+			connection.close();
 		}
 	}
 	@Override
