@@ -15,7 +15,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:text="Create Ride" 
-        android:onclick= "onButtonCreateRide"/>
+        android:onClick= "onButtonCreateRide"/>
 
     <Button
         android:id="@+id/buttonSelectRide"
@@ -24,6 +24,6 @@
         android:layout_alignLeft="@+id/buttonCreateRide"
         android:layout_below="@+id/buttonCreateRide"
         android:text="Select Ride" 
-        android:onclick= "onButtonSelectRide"/>
+        android:onClick= "onButtonSelectRide"/>
 
 </RelativeLayout>

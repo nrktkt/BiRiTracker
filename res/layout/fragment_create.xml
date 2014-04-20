@@ -8,9 +8,26 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.blackdoor.biritracker.CreateActivity$PlaceholderFragment" >
 
-    <TextView
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/editTextRideName"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:ems="10"
+        android:hint="Ride Name" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/buttonStartRide"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editTextRideName"
+        android:layout_below="@+id/editTextRideName"
+        android:text="Start Ride!" 
+        android:onClick="onButtonStartRide"/>
 
 </RelativeLayout>

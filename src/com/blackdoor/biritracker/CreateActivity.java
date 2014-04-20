@@ -3,12 +3,14 @@ package com.blackdoor.biritracker;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.os.Build;
 
 public class CreateActivity extends Activity {
@@ -58,6 +60,14 @@ public class CreateActivity extends Activity {
 			View rootView = inflater.inflate(R.layout.fragment_create,
 					container, false);
 			return rootView;
+		}
+		
+		public void onButtonStartRide(View v){
+			EditText editTextRideName = (EditText) v.findViewById(R.id.editTextRideName);
+			String rideName = editTextRideName.getText().toString();
+			Intent i = new Intent(getActivity(), LeaderActivity.class);
+			i.putExtra("RIDE_NAME", rideName);
+			startActivity(i);
 		}
 	}
 
