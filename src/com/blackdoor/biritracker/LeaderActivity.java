@@ -1,9 +1,11 @@
 package com.blackdoor.biritracker;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -62,7 +64,9 @@ public class LeaderActivity extends Activity {
 	
 	private String rideName;
 	private String devID;
-	private LatLng lastGoodLoc;
+	//private LatLng lastGoodLoc;
+	private double latitude;
+	private double longitude;
 	private Socket connection;
 	private Timer updateTimer;
 	
@@ -82,19 +86,36 @@ public class LeaderActivity extends Activity {
 	
 	protected void onStart(){
 		devID = Settings.Secure.ANDROID_ID;
-		createRide();
+		final int tryout = 6;
+		for(int i = 0; i<tryout; i++){
+			try {
+				createRide();
+				i=tryout*2;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		updateTimer = new Timer(true);
 		updateTimer.scheduleAtFixedRate(new TimerTask(){
 
 			@Override
 			public void run() {
-				updateLocationOnServer();				
+				for(int i = 0; i<tryout; i++){
+					try {
+						updateLocationOnServer();
+						i = tryout*2;
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 			
 		}, 10000, 30000);
 	}
 	
-	private void createRide(){
+	private void createRide() throws Exception{
 		connectToServer();
 		updateLocation();
 		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
@@ -103,8 +124,8 @@ public class LeaderActivity extends Activity {
 		out.println(BiRiServer.Codes.CREATE.name() + prefrences.NULL + 
 				rideName + prefrences.NULL + 
 				devID + prefrences.NULL +
-				lastGoodLoc.latitude + prefrences.NULL +
-				lastGoodLoc.longitude + prefrences.NULL
+				latitude + prefrences.NULL +//TODO
+				longitude + prefrences.NULL//TODO
 				);
 		
 		if(!in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
@@ -116,7 +137,7 @@ public class LeaderActivity extends Activity {
 		
 	}
 	
-	private void updateLocationOnServer(){
+	private void updateLocationOnServer() throws IOException{
 		updateLocation();
 		connectToServer();
 		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
@@ -124,33 +145,37 @@ public class LeaderActivity extends Activity {
 		        new InputStreamReader(connection.getInputStream()));
 		out.println(BiRiServer.Codes.SUBMIT.name() + prefrences.NULL +
 				devID + prefrences.NULL +
-				lastGoodLoc.latitude + prefrences.NULL +
-				lastGoodLoc.longitude + prefrences.NULL);
+				latitude + prefrences.NULL +
+				longitude + prefrences.NULL);
 		
 		if(!in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
-			throw new Exception("Failed to update location on server");
+			throw new IOException("Failed to update location on server");
 		}
 		connection.close();
 	}
 	
-	private void connectToServer(){
+	private void connectToServer() throws IOException, IOException{
 		connection = new Socket(prefrences.serverAddress, prefrences.defaultPort);
 	}
 	
 	public void onButtonEndRide(View v){
 		int tryOut = 5;
 		for(int i = 0; i < tryOut; i++){
-			connectToServer();
-			PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
-			BufferedReader in = new BufferedReader(
-			        new InputStreamReader(connection.getInputStream()));
-			out.println(BiRiServer.Codes.DESTROY.name() + prefrences.NULL +
-					devID + prefrences.NULL);
-			
-			if(in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
-				i = tryOut*2;
+			try{
+				connectToServer();
+				PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
+				BufferedReader in = new BufferedReader(
+				        new InputStreamReader(connection.getInputStream()));
+				out.println(BiRiServer.Codes.DESTROY.name() + prefrences.NULL +
+						devID + prefrences.NULL);
+				
+				if(in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
+					i = tryOut*2;
+				}
+				connection.close();
+			}catch (IOException e){
+				e.printStackTrace();
 			}
-			connection.close();
 		}
 	}
 	@Override

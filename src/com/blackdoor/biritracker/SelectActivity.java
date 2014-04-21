@@ -15,6 +15,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -76,55 +77,70 @@ public class SelectActivity extends Activity {
 			View rootView = inflater.inflate(R.layout.fragment_select,
 					container, false);
 			
-			spinnerRideOptions = (Spinner) getView().findViewById(R.id.spinnerRideOptions);
-			List<String> rides = null;
-			final int tryout = 6;
-			for(int i = 0; i<tryout; i++){
-			try {
-				rides = getAvailableRides();
-				i = tryout + 1;
-			} catch (Exception e) {
-				if (i == tryout)
-					rides = new ArrayList<String>();
-					rides.add(COULDNOTDLSTRING);
-				e.printStackTrace();
-			}}
+			spinnerRideOptions = (Spinner) rootView.findViewById(R.id.spinnerRideOptions);
+			getAvailableRides();
+			//System.out.println(rides);
+			//ArrayAdapter<String> adapterRideOptions = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, rides);
 			
-			ArrayAdapter<String> adapterRideOptions = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, rides);
-			spinnerRideOptions.setAdapter(adapterRideOptions);
+			//spinnerRideOptions.setAdapter(adapterRideOptions);
 			
 			return rootView;
 		}
 		
-		private List<String> getAvailableRides() throws Exception{
-			List<String> rides;
-			String inline;
-			StringTokenizer tk = null;
-			try{
-					Socket connection = new Socket(prefrences.serverAddress, prefrences.defaultPort);
-					PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
-					BufferedReader in = new BufferedReader(
-					        new InputStreamReader(connection.getInputStream()));
+		public void onActivityCreated(Bundle savedInstanceState){
+			super.onActivityCreated(savedInstanceState);
+			
+		}
+		
+		private void getAvailableRides(){
+			//List<String> rides = new ArrayList<String>();
+
+			//ArrayAdapter<String> adapterRideOptions = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, rides);
+			
+			AsyncTask<Void, Void, String> socketTask = new AsyncTask<Void, Void, String>(){
+
+				@Override
+				protected String doInBackground(Void... params) {
+					String inline;
+					try{
+						Socket connection = new Socket(prefrences.serverAddress, prefrences.defaultPort);
+						PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
+						BufferedReader in = new BufferedReader(
+						        new InputStreamReader(connection.getInputStream()));
+						
+						out.println(BiRiServer.Codes.RIDELISTREQ.name() + prefrences.NULL);
+						inline = in.readLine();
 					
-					out.println(BiRiServer.Codes.RIDELISTREQ.name() + prefrences.NULL);
-					inline = in.readLine();
-					
-					connection.close();
-					
-					tk = new StringTokenizer(inline, ""+prefrences.NULL);
-					
-					if(!tk.nextToken().equalsIgnoreCase(BiRiServer.Codes.RIDELISTREP.name())){
-						throw new Exception("Failed to get list of rides.");
+						connection.close();
+						
+					}catch(IOException e){
+						e.printStackTrace();
+						return "Nope" + prefrences.NULL;
 					}
-					
-				}catch (IOException e){
-					throw new Exception("Failed to connect to server.");
+					return inline;
 				}
-			rides = new ArrayList<String>();
-			while(tk.hasMoreTokens()){
-				rides.add(tk.nextToken());
-			}			
-			return rides;
+
+				protected void onPostExecute(String param){
+					List<String> rides = new ArrayList<String>();
+					StringTokenizer tk = null;
+					tk = new StringTokenizer(param, ""+prefrences.NULL);
+
+					if(!tk.nextToken().equalsIgnoreCase(BiRiServer.Codes.RIDELISTREP.name())){
+						rides.add("Failed to get list of rides.");
+						rides.add("No internet connection maybe?");
+					}else{
+						while(tk.hasMoreTokens()){
+							rides.add(tk.nextToken());
+						}	
+					}
+					ArrayAdapter<String> adapterRideOptions = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, rides);
+					spinnerRideOptions.setAdapter(adapterRideOptions);
+				}
+
+			};
+			socketTask.execute();
+
+			
 		}
 		
 		public void onButtonJoinRide(View v){

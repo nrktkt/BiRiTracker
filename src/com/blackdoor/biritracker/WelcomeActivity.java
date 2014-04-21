@@ -74,18 +74,18 @@ public class WelcomeActivity extends Activity {
 			return rootView;
 		}
 		
-		public void onButtonCreateRide(View v){
-			startNewActivity(getActivity(), CreateActivity.class);
-		}
-		
-		public void onButtonSelectRide(View v){
-			startNewActivity(getActivity(), SelectActivity.class);
-		}
-		
-		private void startNewActivity(Context con, Class dest){
-			Intent i = new Intent(con, dest);
-			startActivity(i);
-		}
+	}
+	public void onButtonCreateRide(View v){
+		startNewActivity(this, CreateActivity.class);
+	}
+	
+	public void onButtonSelectRide(View v){
+		startNewActivity(this, SelectActivity.class);
+	}
+	
+	private void startNewActivity(Context con, Class dest){
+		Intent i = new Intent(con, dest);
+		startActivity(i);
 	}
 
 }
