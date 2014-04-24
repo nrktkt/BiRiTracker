@@ -4,6 +4,7 @@ import com.blackdoor.biritracker.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +12,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
+
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.model.*;
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -46,14 +52,17 @@ public class FollowerActivity extends Activity {
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
-
+	
+	private GoogleMap guMap;
+	private MapFragment guMapFragment;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_follower);
 		setupActionBar();
-
+		addMapFragment();
+		
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
 
@@ -192,4 +201,13 @@ public class FollowerActivity extends Activity {
 		mHideHandler.removeCallbacks(mHideRunnable);
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
+	
+	private void addMapFragment() {
+		guMapFragment = MapFragment.newInstance(loadMapOptions());
+		FragmentTransaction fragmentTransaction = getFragmentManager()
+				.beginTransaction();
+		fragmentTransaction.add(R.id.mapContainer, guMapFragment);
+		fragmentTransaction.commit();
+	}
+
 }
