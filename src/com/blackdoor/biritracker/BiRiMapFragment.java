@@ -16,25 +16,26 @@ import android.view.ViewGroup;
 
 public class BiRiMapFragment extends MapFragment {
 	private GoogleMap map;
-	
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
 
-	    View v = inflater.inflate(R.layout.map_fragment, null, false);   
-	    map =  ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap(); 
-	    map.setMyLocationEnabled(true);
-	    map.moveCamera(CameraUpdateFactory.newLatLngZoom(SOME_PLACE, 2));
-	    map.animateCamera(CameraUpdateFactory.zoomTo(14), 2000, null);
-	    return v;
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+
+		View v = inflater.inflate(R.layout.map_fragment, null, false);
+		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
+				.getMap();
+		map.setMyLocationEnabled(true);
+		// map.moveCamera(CameraUpdateFactory.newLatLngZoom(SOME_PLACE, 2));
+//		map.animateCamera(CameraUpdateFactory.zoomTo(14), 2000, null);
+		return v;
 	}
-	
-	public void zoomToLeader(LatLng latlng)
-	{
-	    Log.d("BiRi", "latlngzoom: "+latlng );
-	    if (map == null)
-	    {
-	        map =  ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap(); 
-	    }
-	    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 2));
-	    map.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);  
+
+	public void zoomToLeader(LatLng latlng) {
+		Log.d("BiRi", "latlngzoom: " + latlng);
+		if (map == null) {
+			map = ((MapFragment) getFragmentManager()
+					.findFragmentById(R.id.map)).getMap();
+		}
+//		map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 2));
+//		map.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);
 	}
 }

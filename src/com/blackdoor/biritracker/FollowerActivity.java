@@ -17,7 +17,6 @@ import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.model.*;
 
-
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -52,14 +51,15 @@ public class FollowerActivity extends Activity {
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
-	
+	private GoogleMap map;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_follower);
 		setupActionBar();
-	//	addMapFragment();
-		
+		// addMapFragment();
+
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
 
@@ -125,6 +125,10 @@ public class FollowerActivity extends Activity {
 		// while interacting with the UI.
 		findViewById(R.id.buttonEndRide).setOnTouchListener(
 				mDelayHideTouchListener);
+
+		map = ((MapFragment) getFragmentManager().findFragmentById(
+				R.id.biri_map)).getMap();
+
 	}
 
 	@Override
@@ -146,6 +150,29 @@ public class FollowerActivity extends Activity {
 			// Show the Up button in the action bar.
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		setUpMapIfNeeded();
+
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 
 	@Override
@@ -197,6 +224,17 @@ public class FollowerActivity extends Activity {
 	private void delayedHide(int delayMillis) {
 		mHideHandler.removeCallbacks(mHideRunnable);
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
+	}
+
+	private void setUpMapIfNeeded() {
+		// Do a null check to confirm that we have not already instantiated the
+		// map.
+		if (map == null) {
+			map = ((MapFragment) getFragmentManager()
+					.findFragmentById(R.id.biri_map)).getMap();
+			map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+		}
+
 	}
 
 }

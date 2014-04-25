@@ -12,17 +12,6 @@
          
     -->
 
-    <TextView
-        android:id="@+id/fullscreen_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:keepScreenOn="true"
-        android:text="@string/dummy_content"
-        android:textColor="#33b5e5"
-        android:textSize="50sp"
-        android:textStyle="bold" />
-
     <!--
          This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows.
@@ -43,15 +32,22 @@
             android:orientation="horizontal"
             tools:ignore="UselessParent" >
 
-            <Button
-                android:id="@+id/buttonLeaveRide"
-                style="?metaButtonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onButtonLeaveRide"
-                android:text="Leave Ride" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonLeaveRide"
+            style="?metaButtonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClick="onButtonLeaveRide"
+            android:text="@string/leave_ride" />
+
     </FrameLayout>
+
+    <fragment
+        android:id="@+id/biri_map"
+        android:name="com.blackdoor.biritracker.BiRiMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </FrameLayout>
