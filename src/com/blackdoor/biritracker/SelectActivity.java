@@ -27,6 +27,8 @@ import android.widget.Spinner;
 import android.os.Build;
 
 public class SelectActivity extends Activity {
+	
+	public static final String RIDE_NAME_EXTRA = "RIDE_NAME_EXTRA";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +68,7 @@ public class SelectActivity extends Activity {
 		
 		private Spinner spinnerRideOptions;
 		public static final String COULDNOTDLSTRING = "Could not get list of available rides ;(";
-		public static final String RIDE_NAME_EXTRA = "RIDE_NAME_EXTRA";
+		
 		
 		public PlaceholderFragment() {
 		}
@@ -143,12 +145,14 @@ public class SelectActivity extends Activity {
 			
 		}
 		
-		public void onButtonJoinRide(View v){
-			String rideName = spinnerRideOptions.getItemAtPosition(spinnerRideOptions.getSelectedItemPosition()).toString();
-			Intent i = new Intent(getActivity(), FollowerActivity.class);
-			i.putExtra(RIDE_NAME_EXTRA, rideName);
-			startActivity(i);
-		}
+		
+	}
+	public void onButtonJoinRide(View v){
+		Spinner spinnerRideOptions = (Spinner) findViewById(R.id.spinnerRideOptions);
+		String rideName = spinnerRideOptions.getItemAtPosition(spinnerRideOptions.getSelectedItemPosition()).toString();
+		Intent i = new Intent(this, FollowerActivity.class);
+		i.putExtra(RIDE_NAME_EXTRA, rideName);
+		startActivity(i);
 	}
 
 }
