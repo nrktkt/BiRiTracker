@@ -17,6 +17,7 @@ import com.blackdoor.biritracker.util.SystemUiHider;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +25,7 @@ import android.provider.Settings;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem;
+import android.widget.Toast;
 import android.support.v4.app.NavUtils;
 
 /**
@@ -83,7 +85,7 @@ public class LeaderActivity extends Activity {
 		rideName = i.getStringExtra("RIDE_NAME");
 		
 	}
-	
+
 	protected void onStart(){
 		devID = Settings.Secure.ANDROID_ID;
 		final int tryout = 6;
@@ -116,22 +118,59 @@ public class LeaderActivity extends Activity {
 	}
 	
 	private void createRide() throws Exception{
-		connectToServer();
 		updateLocation();
-		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(connection.getInputStream()));
-		out.println(BiRiServer.Codes.CREATE.name() + prefrences.NULL + 
-				rideName + prefrences.NULL + 
-				devID + prefrences.NULL +
-				latitude + prefrences.NULL +//TODO
-				longitude + prefrences.NULL//TODO
-				);
-		
-		if(!in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
-			throw new Exception("Ride creation failed");
-		}
-		connection.close();
+		final double lat = latitude;
+		final double lng = longitude;
+		AsyncTask<String, Void, String> socketTask = new AsyncTask<String, Void, String>(){
+
+			@Override
+			protected String doInBackground(String... params) {
+				String ret = "";
+				try{
+					Socket connection = connectToServer();
+					PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
+					BufferedReader in = new BufferedReader(
+					        new InputStreamReader(connection.getInputStream()));
+					out.println(BiRiServer.Codes.CREATE.name() + prefrences.NULL + 
+							rideName + prefrences.NULL + 
+							devID + prefrences.NULL +
+							latitude + prefrences.NULL +//TODO
+							longitude + prefrences.NULL//TODO
+							);
+					ret = in.readLine();
+					connection.close();
+				}catch(IOException e){
+					e.printStackTrace();
+				}
+				return ret;
+			}
+			
+			protected void onPostExecute(String param){
+				if(!param.equalsIgnoreCase(BiRiServer.Codes.OK.name())){
+					Toast toast = Toast.makeText(LeaderActivity.this.getApplicationContext(), "Failed to create ride", Toast.LENGTH_LONG);
+					toast.show();
+				}
+			}
+			
+			
+		};
+//		connectToServer();
+//		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
+//		BufferedReader in = new BufferedReader(
+//		        new InputStreamReader(connection.getInputStream()));
+//		out.println(BiRiServer.Codes.CREATE.name() + prefrences.NULL + 
+//				rideName + prefrences.NULL + 
+//				devID + prefrences.NULL +
+//				latitude + prefrences.NULL +//TODO
+//				longitude + prefrences.NULL//TODO
+//				);
+//		
+//		if(!in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
+//			throw new Exception("Ride creation failed");
+//		}
+//		connection.close();
+	
+	
 	}
 	private void updateLocation(){
 		
@@ -154,9 +193,12 @@ public class LeaderActivity extends Activity {
 		connection.close();
 	}
 	
-	private void connectToServer() throws IOException, IOException{
+	private Socket connectToServer() throws IOException, IOException{
 		connection = new Socket(prefrences.serverAddress, prefrences.defaultPort);
+		return connection;
 	}
+	
+	
 	
 	public void onButtonEndRide(View v){
 		int tryOut = 5;
@@ -178,6 +220,7 @@ public class LeaderActivity extends Activity {
 			}
 		}
 	}
+	
 	@Override
 	protected void onDestroy(){
 		updateTimer.cancel();

@@ -62,13 +62,14 @@ public class CreateActivity extends Activity {
 			return rootView;
 		}
 		
-		public void onButtonStartRide(View v){
-			EditText editTextRideName = (EditText) v.findViewById(R.id.editTextRideName);
-			String rideName = editTextRideName.getText().toString();
-			Intent i = new Intent(getActivity(), LeaderActivity.class);
-			i.putExtra("RIDE_NAME", rideName);
-			startActivity(i);
-		}
+		
+	}
+	public void onButtonStartRide(View v){
+		EditText editTextRideName = (EditText) findViewById(R.id.editTextRideName);
+		String rideName = editTextRideName.getText().toString();
+		Intent i = new Intent(this, LeaderActivity.class);
+		i.putExtra("RIDE_NAME", rideName);
+		startActivity(i);
 	}
 
 }
