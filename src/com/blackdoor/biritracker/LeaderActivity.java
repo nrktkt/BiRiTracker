@@ -17,6 +17,8 @@ import com.blackdoor.biritracker.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -86,23 +88,25 @@ public class LeaderActivity extends Activity {
 		Intent i = getIntent();
 		rideName = i.getStringExtra("RIDE_NAME");
 		
-	}
-
-	protected void onStart(){
-		super.onStart();
 		devID = Secure.getString(getBaseContext().getContentResolver(),
                 Secure.ANDROID_ID);
 		final int tryout = 6;
-		for(int i = 0; i<tryout; i++){
+		for(int iz = 0; iz<tryout; iz++){
 			try {
 				createRide();
-				i=tryout*2;
+				iz=tryout*2;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		setupTimer(tryout);
+		
+	}
+
+	protected void onStart(){
+		super.onStart();
+		
 		
 	}
 	
@@ -391,7 +395,30 @@ public class LeaderActivity extends Activity {
 			//
 			// TODO: If Settings has multiple levels, Up should navigate up
 			// that hierarchy.
-			NavUtils.navigateUpFromSameTask(this);
+			
+			DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+			    @Override
+			    public void onClick(DialogInterface dialog, int which) {
+			        switch (which){
+			        case DialogInterface.BUTTON_POSITIVE:
+			        	onButtonEndRide(LeaderActivity.this.findViewById(R.id.buttonEndRide));
+			        	NavUtils.navigateUpFromSameTask(LeaderActivity.this);
+			            break;
+
+			        case DialogInterface.BUTTON_NEGATIVE:
+			            //No button clicked
+			            break;
+			        }
+			    }
+			};
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("Are you sure?\nLeaving will end the ride!")
+			    .setNegativeButton("No", dialogClickListener)
+			    .setPositiveButton("Yes", dialogClickListener)
+			    .show();
+			
+			
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

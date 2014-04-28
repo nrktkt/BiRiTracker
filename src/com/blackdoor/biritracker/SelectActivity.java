@@ -29,6 +29,8 @@ import android.os.Build;
 public class SelectActivity extends Activity {
 	
 	public static final String RIDE_NAME_EXTRA = "RIDE_NAME_EXTRA";
+	private PlaceholderFragment frag;
+	private final String FRAG_ID = "SELECT_FRAG";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +39,9 @@ public class SelectActivity extends Activity {
 
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
+					.add(R.id.container, new PlaceholderFragment(), FRAG_ID).commit();
 		}
+		
 	}
 
 	@Override
@@ -55,11 +58,14 @@ public class SelectActivity extends Activity {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		if (id == R.id.action_refresh) {
+			((PlaceholderFragment) getFragmentManager().findFragmentByTag(FRAG_ID)).getAvailableRides();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	
 
 	/**
 	 * A placeholder fragment containing a simple view.
