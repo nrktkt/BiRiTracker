@@ -26,19 +26,21 @@
         </activity>
         <activity
             android:name="com.blackdoor.biritracker.CreateActivity"
+            android:noHistory="true"
             android:label="@string/title_activity_create"
-            android:parentActivityName="com.blackdoor.andytictactoe.WelcomeActivity" >
+            android:parentActivityName="com.blackdoor.biritracker.WelcomeActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.blackdoor.andytictactoe.WelcomeActivity" />
+                android:value="com.blackdoor.biritracker.WelcomeActivity" />
         </activity>
         <activity
             android:name="com.blackdoor.biritracker.SelectActivity"
+            android:noHistory="true"
             android:label="@string/title_activity_select"
-            android:parentActivityName="com.blackdoor.andytictactoe.WelcomeActivity" >
+            android:parentActivityName="com.blackdoor.biritracker.WelcomeActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.blackdoor.andytictactoe.WelcomeActivity" />
+                android:value="com.blackdoor.biritracker.WelcomeActivity" />
         </activity>
         <activity
             android:name="com.blackdoor.biritracker.LeaderActivity"

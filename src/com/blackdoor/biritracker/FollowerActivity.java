@@ -1,5 +1,17 @@
 package com.blackdoor.biritracker;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import pref.prefrences;
+import server.BiRiServer;
+
 import com.blackdoor.biritracker.util.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -7,9 +19,11 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem;
+import android.widget.Toast;
 import android.support.v4.app.NavUtils;
 
 /**
@@ -46,7 +60,87 @@ public class FollowerActivity extends Activity {
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
+	
+	private Timer updateTimer;
+	private String rideName;
+	//private LatLng lastGoodLoc;
+	private double latitude;
+	private double longitude;
+	private Socket connection;
+	
+	public Handler mMapHandler = new Handler(){
+			public void handleMessage(Message msg){
+				//TODO add code to add a pin for leader at latitude and longitude
+			}
+		};
 
+	private void uiHiderStuff(){
+		final View controlsView = findViewById(R.id.fullscreen_content_controls);
+		final View contentView = findViewById(R.id.fullscreen_content);
+		// Set up an instance of SystemUiHider to control the system UI for
+				// this activity.
+				mSystemUiHider = SystemUiHider.getInstance(this, contentView,
+						HIDER_FLAGS);
+				mSystemUiHider.setup();
+				mSystemUiHider
+						.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
+							// Cached values.
+							int mControlsHeight;
+							int mShortAnimTime;
+
+							@Override
+							@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+							public void onVisibilityChange(boolean visible) {
+								if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+									// If the ViewPropertyAnimator API is available
+									// (Honeycomb MR2 and later), use it to animate the
+									// in-layout UI controls at the bottom of the
+									// screen.
+									if (mControlsHeight == 0) {
+										mControlsHeight = controlsView.getHeight();
+									}
+									if (mShortAnimTime == 0) {
+										mShortAnimTime = getResources().getInteger(
+												android.R.integer.config_shortAnimTime);
+									}
+									controlsView
+											.animate()
+											.translationY(visible ? 0 : mControlsHeight)
+											.setDuration(mShortAnimTime);
+								} else {
+									// If the ViewPropertyAnimator APIs aren't
+									// available, simply show or hide the in-layout UI
+									// controls.
+									controlsView.setVisibility(visible ? View.VISIBLE
+											: View.GONE);
+								}
+
+								if (visible && AUTO_HIDE) {
+									// Schedule a hide().
+									delayedHide(AUTO_HIDE_DELAY_MILLIS);
+								}
+							}
+						});
+
+				// Set up the user interaction to manually show or hide the system UI.
+				contentView.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						if (TOGGLE_ON_CLICK) {
+							mSystemUiHider.toggle();
+						} else {
+							mSystemUiHider.show();
+						}
+					}
+				});
+
+				// Upon interacting with UI controls, delay any scheduled hide()
+				// operations to prevent the jarring behavior of controls going away
+				// while interacting with the UI.
+				findViewById(R.id.buttonLeaveRide).setOnTouchListener(
+						mDelayHideTouchListener);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,73 +148,62 @@ public class FollowerActivity extends Activity {
 		setContentView(R.layout.activity_follower);
 		setupActionBar();
 
-		final View controlsView = findViewById(R.id.fullscreen_content_controls);
-		final View contentView = findViewById(R.id.fullscreen_content);
+		uiHiderStuff();
+		
+		
+		
+		setupTimer(4);
+		
+		
+		
+	}
+	
+	private void setupTimer(int x){
+		System.out.println("ride created");
+		final int tryout = x;
+		updateTimer = new Timer(true);
+		updateTimer.scheduleAtFixedRate(new TimerTask(){
 
-		// Set up an instance of SystemUiHider to control the system UI for
-		// this activity.
-		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
-				HIDER_FLAGS);
-		mSystemUiHider.setup();
-		mSystemUiHider
-				.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-					// Cached values.
-					int mControlsHeight;
-					int mShortAnimTime;
-
-					@Override
-					@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-					public void onVisibilityChange(boolean visible) {
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-							// If the ViewPropertyAnimator API is available
-							// (Honeycomb MR2 and later), use it to animate the
-							// in-layout UI controls at the bottom of the
-							// screen.
-							if (mControlsHeight == 0) {
-								mControlsHeight = controlsView.getHeight();
-							}
-							if (mShortAnimTime == 0) {
-								mShortAnimTime = getResources().getInteger(
-										android.R.integer.config_shortAnimTime);
-							}
-							controlsView
-									.animate()
-									.translationY(visible ? 0 : mControlsHeight)
-									.setDuration(mShortAnimTime);
-						} else {
-							// If the ViewPropertyAnimator APIs aren't
-							// available, simply show or hide the in-layout UI
-							// controls.
-							controlsView.setVisibility(visible ? View.VISIBLE
-									: View.GONE);
-						}
-
-						if (visible && AUTO_HIDE) {
-							// Schedule a hide().
-							delayedHide(AUTO_HIDE_DELAY_MILLIS);
-						}
-					}
-				});
-
-		// Set up the user interaction to manually show or hide the system UI.
-		contentView.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View view) {
-				if (TOGGLE_ON_CLICK) {
-					mSystemUiHider.toggle();
-				} else {
-					mSystemUiHider.show();
+			public void run() {
+				for(int i = 0; i<tryout; i++){
+					try {
+						updateLocationFromServer();
+						i = tryout*2;
+					} catch (IOException e) {
+						e.printStackTrace();
+						Toast toast = Toast.makeText(FollowerActivity.this.getApplicationContext(), 
+								e.getMessage(), Toast.LENGTH_LONG);
+						toast.show();
+					}
 				}
 			}
-		});
-
-		// Upon interacting with UI controls, delay any scheduled hide()
-		// operations to prevent the jarring behavior of controls going away
-		// while interacting with the UI.
-		findViewById(R.id.buttonEndRide).setOnTouchListener(
-				mDelayHideTouchListener);
+			
+		}, 0, prefrences.UPDATE_PERIOD);
+	}
+	
+	private void updateLocationFromServer() throws IOException{
+		connection = LeaderActivity.connectToServer();
+		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(connection.getInputStream()));
+		out.println(BiRiServer.Codes.REQUEST.name() + prefrences.NULL +
+				rideName + prefrences.NULL);
+		
+		String replyLine = in.readLine();
+		connection.close();
+		
+		StringTokenizer tk = new StringTokenizer(replyLine, ""+prefrences.NULL);
+		if(!tk.nextToken().equalsIgnoreCase(BiRiServer.Codes.LOC.name())){
+			throw new IOException("Failed to update location from server");
+		}
+		latitude = Double.parseDouble(tk.nextToken());
+		longitude = Double.parseDouble(tk.nextToken());
+		
 	}
 
+	
+	
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);

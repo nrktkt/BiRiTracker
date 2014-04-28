@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.provider.Settings.Secure;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem;
@@ -87,7 +89,9 @@ public class LeaderActivity extends Activity {
 	}
 
 	protected void onStart(){
-		devID = Settings.Secure.ANDROID_ID;
+		super.onStart();
+		devID = Secure.getString(getBaseContext().getContentResolver(),
+                Secure.ANDROID_ID);
 		final int tryout = 6;
 		for(int i = 0; i<tryout; i++){
 			try {
@@ -98,6 +102,13 @@ public class LeaderActivity extends Activity {
 				e.printStackTrace();
 			}
 		}
+		setupTimer(tryout);
+		
+	}
+	
+	private void setupTimer(int x){
+		System.out.println("ride created");
+		final int tryout = x;
 		updateTimer = new Timer(true);
 		updateTimer.scheduleAtFixedRate(new TimerTask(){
 
@@ -106,6 +117,7 @@ public class LeaderActivity extends Activity {
 				for(int i = 0; i<tryout; i++){
 					try {
 						updateLocationOnServer();
+						System.out.println("updating server");
 						i = tryout*2;
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -114,7 +126,7 @@ public class LeaderActivity extends Activity {
 				}
 			}
 			
-		}, 10000, 30000);
+		}, 10000, prefrences.UPDATE_PERIOD);
 	}
 	
 	private void createRide() throws Exception{
@@ -146,7 +158,11 @@ public class LeaderActivity extends Activity {
 			}
 			
 			protected void onPostExecute(String param){
-				if(!param.equalsIgnoreCase(BiRiServer.Codes.OK.name())){
+				StringTokenizer tk = new StringTokenizer(param, ""+prefrences.NULL);
+				String replyString = tk.nextToken();
+				//Toast toast = Toast.makeText(LeaderActivity.this.getApplicationContext(), BiRiServer.Codes.OK.name(), Toast.LENGTH_LONG);
+				//toast.show();
+				if(!replyString.equalsIgnoreCase(BiRiServer.Codes.OK.toString())){
 					Toast toast = Toast.makeText(LeaderActivity.this.getApplicationContext(), "Failed to create ride", Toast.LENGTH_LONG);
 					toast.show();
 				}
@@ -154,6 +170,7 @@ public class LeaderActivity extends Activity {
 			
 			
 		};
+		socketTask.execute("poop?");
 //		connectToServer();
 //		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
 //		BufferedReader in = new BufferedReader(
@@ -178,7 +195,7 @@ public class LeaderActivity extends Activity {
 	
 	private void updateLocationOnServer() throws IOException{
 		updateLocation();
-		connectToServer();
+		connection = connectToServer();
 		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
 		BufferedReader in = new BufferedReader(
 		        new InputStreamReader(connection.getInputStream()));
@@ -187,39 +204,82 @@ public class LeaderActivity extends Activity {
 				latitude + prefrences.NULL +
 				longitude + prefrences.NULL);
 		
-		if(!in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
+		StringTokenizer tk = new StringTokenizer(in.readLine(), ""+prefrences.NULL);
+		if(!tk.nextToken().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
 			throw new IOException("Failed to update location on server");
 		}
 		connection.close();
 	}
 	
-	private Socket connectToServer() throws IOException, IOException{
-		connection = new Socket(prefrences.serverAddress, prefrences.defaultPort);
+	public static Socket connectToServer() throws IOException, IOException{
+		Socket connection = new Socket(prefrences.serverAddress, prefrences.defaultPort);
 		return connection;
 	}
 	
 	
 	
 	public void onButtonEndRide(View v){
-		int tryOut = 5;
-		for(int i = 0; i < tryOut; i++){
-			try{
-				connectToServer();
-				PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
-				BufferedReader in = new BufferedReader(
-				        new InputStreamReader(connection.getInputStream()));
-				out.println(BiRiServer.Codes.DESTROY.name() + prefrences.NULL +
-						devID + prefrences.NULL);
-				
-				if(in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
-					i = tryOut*2;
+		AsyncTask<String, Void, String> socketTask = new AsyncTask<String, Void, String>(){
+
+			@Override
+			protected String doInBackground(String... params) {
+				String ret = "";
+				try{
+					Socket connection = connectToServer();
+					PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
+					BufferedReader in = new BufferedReader(
+					        new InputStreamReader(connection.getInputStream()));
+					out.println(BiRiServer.Codes.DESTROY.name() + prefrences.NULL + 
+							devID + prefrences.NULL
+							);
+					ret = in.readLine();
+					connection.close();
+				}catch(IOException e){
+					e.printStackTrace();
 				}
-				connection.close();
-			}catch (IOException e){
-				e.printStackTrace();
+				return ret;
 			}
-		}
-	}
+			
+			protected void onPostExecute(String param){
+				StringTokenizer tk = new StringTokenizer(param, ""+prefrences.NULL);
+				String replyString = tk.nextToken();
+				//Toast toast = Toast.makeText(LeaderActivity.this.getApplicationContext(), BiRiServer.Codes.OK.name(), Toast.LENGTH_LONG);
+				//toast.show();
+				if(!replyString.equalsIgnoreCase(BiRiServer.Codes.OK.toString())){
+					Toast toast = Toast.makeText(LeaderActivity.this.getApplicationContext(), "Failed to destroy ride, retrying.", Toast.LENGTH_LONG);
+					toast.show();
+				}
+			}
+			
+			
+		};
+		socketTask.execute("");
+		finish();
+		
+		
+//		int tryOut = 5;
+//		for(int i = 0; i < tryOut; i++){
+//			
+//			
+//			
+//			
+//			try{
+//				connectToServer();
+//				PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
+//				BufferedReader in = new BufferedReader(
+//				        new InputStreamReader(connection.getInputStream()));
+//				out.println(BiRiServer.Codes.DESTROY.name() + prefrences.NULL +
+//						devID + prefrences.NULL);
+//				
+//				if(in.readLine().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
+//					i = tryOut*2;
+//				}
+//				connection.close();
+//			}catch (IOException e){
+//				e.printStackTrace();
+//			}
+//		}
+}
 	
 	@Override
 	protected void onDestroy(){
