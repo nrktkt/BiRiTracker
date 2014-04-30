@@ -30,8 +30,8 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <meta-data
-            android:name="com.google.android.maps.v2.AIzaSyDgwrRhdZkF817_bhg14voATV1Hw-xEzbw"
-            android:value="56:9A:7D:20:50:AF:16:8F:DF:A2:6C:C2:E6:AA:67:7B:2B:12:30:45" />
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyDgwrRhdZkF817_bhg14voATV1Hw-xEzbw" />
 
         <activity
             android:name="com.blackdoor.biritracker.WelcomeActivity"
