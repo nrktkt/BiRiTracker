@@ -7,14 +7,32 @@
     <uses-sdk
         android:minSdkVersion="16"
         android:targetSdkVersion="19" />
-    
-    <uses-permission android:name="android.permission.INTERNET" /> 
+
+    <permission
+        android:name="com.blackdoor.biritracker.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" >
+    </permission>
+
+    <uses-permission android:name="com.blackdoor.biritracker.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="com.google.android.maps.v2.AIzaSyDgwrRhdZkF817_bhg14voATV1Hw-xEzbw"
+            android:value="56:9A:7D:20:50:AF:16:8F:DF:A2:6C:C2:E6:AA:67:7B:2B:12:30:45" />
+
         <activity
             android:name="com.blackdoor.biritracker.WelcomeActivity"
             android:label="@string/app_name" >
