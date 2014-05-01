@@ -182,6 +182,11 @@ public class FollowerActivity extends Activity {
 		findViewById(R.id.buttonLeaveRide).setOnTouchListener(
 				mDelayHideTouchListener);
 	}
+	@Override
+	protected void onDestroy(){
+		updateTimer.cancel();
+		super.onDestroy();
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
