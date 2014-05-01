@@ -23,13 +23,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem;
@@ -53,7 +54,7 @@ public class FollowerActivity extends Activity {
 	 * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
 	 * user interaction before hiding the system UI.
 	 */
-	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+	private static final int AUTO_HIDE_DELAY_MILLIS = 10000;
 
 	/**
 	 * If set, will toggle the system UI visibility upon interaction. Otherwise,
@@ -112,12 +113,14 @@ public class FollowerActivity extends Activity {
 		}
 	};
 
-	public Handler mMapHandler = new Handler() {
+	Handler mMapHandler = new Handler();
+	Runnable mMapRunnable = new Runnable(){
 
-		public void handleMessage(Message msg) {
-			// TODO add code to add a pin for leader at latitude and longitude
+		@Override
+		public void run() {
 			addAndmanageMarkers();
 		}
+		
 	};
 
 	private void addAndmanageMarkers() {
@@ -207,6 +210,10 @@ public class FollowerActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_follower);
+		
+		Intent i = getIntent();
+		rideName = i.getStringExtra(SelectActivity.RIDE_NAME_EXTRA);
+		
 		setupActionBar();
 		uiHiderStuff();
 		setupTimer(4);
@@ -296,6 +303,7 @@ public class FollowerActivity extends Activity {
 		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				connection.getInputStream()));
+		//System.out.println(rideName);
 		out.println(BiRiServer.Codes.REQUEST.name() + prefrences.NULL
 				+ rideName + prefrences.NULL);
 
@@ -307,9 +315,12 @@ public class FollowerActivity extends Activity {
 		if (!tk.nextToken().equalsIgnoreCase(BiRiServer.Codes.LOC.name())) {
 			throw new IOException("Failed to update location from server");
 		}
+		
 		latitude = Double.parseDouble(tk.nextToken());
 		longitude = Double.parseDouble(tk.nextToken());
+		System.out.println(latitude + " " + longitude);
 		setLeaderLocation(latitude, longitude);
+		mMapHandler.post(mMapRunnable);
 	}
 
 	private void setMyLocation(double lat, double lng) {
@@ -317,7 +328,9 @@ public class FollowerActivity extends Activity {
 	}
 
 	private void setLeaderLocation(double lat, double lng) {
-		leaderloc.equals(new LatLng(lat, lng));
+		//leaderloc.equals(new LatLng(lat, lng));// THIS IS NOT HOW THIS GODDAMN WORKS!
+			//FOR F!@K's SAKE IT RETURNS A BOOLEAN, HOW DID YOU CONFUSE .equals WITH = ?????
+		leaderloc = new LatLng(lat,lng);
 	}
 
 	@Override

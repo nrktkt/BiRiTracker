@@ -12,7 +12,6 @@ import java.util.StringTokenizer;
 import pref.prefrences;
 import server.BiRiServer;
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -24,7 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.os.Build;
 
 public class SelectActivity extends Activity {
 	
