@@ -337,10 +337,9 @@ public class FollowerActivity extends Activity {
 	}
 
 	private void setLeaderLocation(double lat, double lng) {
-		// leaderloc.equals(new LatLng(lat, lng));// THIS IS NOT HOW THIS
-		// GODDAMN WORKS!
-		// FOR F!@K's SAKE IT RETURNS A BOOLEAN, HOW DID YOU CONFUSE .equals
-		// WITH = ?????
+		//sometimes you know what youre doing. 
+		//sometimes you know what youre doing but you just do it wrong. 
+		//what's important is that we all learned something here. 
 		leaderloc = new LatLng(lat, lng);
 	}
 
