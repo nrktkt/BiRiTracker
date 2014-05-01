@@ -121,6 +121,7 @@ public class FollowerActivity extends Activity {
 	};
 
 	private void addAndmanageMarkers() {
+		//keep the current and last ten points around
 		Marker marker = map.addMarker(new MarkerOptions().position(leaderloc));
 		if (leaderloclist.size() > 10) {
 			leaderloclist.add(0, marker);
@@ -128,8 +129,18 @@ public class FollowerActivity extends Activity {
 		} else {
 			leaderloclist.add(0, marker);
 		}
+		//disappearing points to look cool
+		float alpha = 1;
+		for (int i = 0; i < leaderloclist.size();i++){
+		leaderloclist.get(i).setAlpha(alpha);
+			alpha-=.1;
+		}
 	}
-
+	
+	private void positionCamera(){
+		//TODO figure out the camera stuff!!
+	}
+	
 	private void uiHiderStuff() {
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.map);
@@ -244,7 +255,8 @@ public class FollowerActivity extends Activity {
 	private void setupMap() {
 		setUpMapIfNeeded();
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		// map.UiSettings.setZoomControlsEnabled(false);
+		map.setMyLocationEnabled(true);
+
 	}
 
 	private void setUpMapIfNeeded() {
@@ -253,6 +265,7 @@ public class FollowerActivity extends Activity {
 		if (map == null) {
 			map = ((MapFragment) getFragmentManager()
 					.findFragmentById(R.id.map)).getMap();
+			
 			// Check if we were successful in obtaining the map.
 			if (map != null) {
 				// The Map is verified. It is now safe to manipulate the map.
@@ -310,10 +323,6 @@ public class FollowerActivity extends Activity {
 		latitude = Double.parseDouble(tk.nextToken());
 		longitude = Double.parseDouble(tk.nextToken());
 		setLeaderLocation(latitude, longitude);
-	}
-
-	private void setMyLocation(double lat, double lng) {
-		myloc_LL.equals(new LatLng(lat, lng));
 	}
 
 	private void setLeaderLocation(double lat, double lng) {
