@@ -16,9 +16,10 @@ import server.BiRiServer;
 import com.blackdoor.biritracker.util.SystemUiHider;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -84,7 +85,7 @@ public class FollowerActivity extends Activity {
 	private final float LOCATION_REFRESH_DISTANCE = 10000;
 	private LatLng leaderloc;
 	private CameraPosition campos;
-	private ArrayList<LatLng> leaderloclist = new ArrayList<LatLng>();
+	private ArrayList<Marker> leaderloclist = new ArrayList<Marker>();
 
 	private final LocationListener mLocationListener = new LocationListener() {
 		@Override
@@ -112,10 +113,22 @@ public class FollowerActivity extends Activity {
 	};
 
 	public Handler mMapHandler = new Handler() {
+
 		public void handleMessage(Message msg) {
 			// TODO add code to add a pin for leader at latitude and longitude
+			addAndmanageMarkers();
 		}
 	};
+
+	private void addAndmanageMarkers() {
+		Marker marker = map.addMarker(new MarkerOptions().position(leaderloc));
+		if (leaderloclist.size() > 10) {
+			leaderloclist.add(0, marker);
+			leaderloclist.remove(9);
+		} else {
+			leaderloclist.add(0, marker);
+		}
+	}
 
 	private void uiHiderStuff() {
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
@@ -183,8 +196,9 @@ public class FollowerActivity extends Activity {
 		findViewById(R.id.buttonLeaveRide).setOnTouchListener(
 				mDelayHideTouchListener);
 	}
+
 	@Override
-	protected void onDestroy(){
+	protected void onDestroy() {
 		updateTimer.cancel();
 		super.onDestroy();
 	}
@@ -196,7 +210,7 @@ public class FollowerActivity extends Activity {
 		setupActionBar();
 		uiHiderStuff();
 		setupTimer(4);
-		
+
 		setupMap();
 		setupLocListener();
 	}
@@ -218,11 +232,7 @@ public class FollowerActivity extends Activity {
 		super.onStop();
 
 	}
-	
-	private void placeLeaderMarker(){
-		//TODO
-		leaderloclist.add(leaderloc);
-	}
+
 	private void setupLocListener() {
 		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
