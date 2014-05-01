@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,7 +16,7 @@ import server.BiRiServer;
 import com.blackdoor.biritracker.util.SystemUiHider;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.UiSettings;
+
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -27,7 +28,6 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
@@ -84,6 +84,7 @@ public class FollowerActivity extends Activity {
 	private final float LOCATION_REFRESH_DISTANCE = 10000;
 	private LatLng leaderloc;
 	private CameraPosition campos;
+	private ArrayList<LatLng> leaderloclist = new ArrayList<LatLng>();
 
 	private final LocationListener mLocationListener = new LocationListener() {
 		@Override
@@ -195,6 +196,7 @@ public class FollowerActivity extends Activity {
 		setupActionBar();
 		uiHiderStuff();
 		setupTimer(4);
+		
 		setupMap();
 		setupLocListener();
 	}
@@ -216,7 +218,11 @@ public class FollowerActivity extends Activity {
 		super.onStop();
 
 	}
-
+	
+	private void placeLeaderMarker(){
+		//TODO
+		leaderloclist.add(leaderloc);
+	}
 	private void setupLocListener() {
 		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -248,10 +254,10 @@ public class FollowerActivity extends Activity {
 	private void setupTimer(int x) {
 		System.out.println("ride created");
 		final int tryout = x;
-		
+
 		final Toast toast = Toast.makeText(
-						FollowerActivity.this.getApplicationContext(),
-						"Failed to update location from server", Toast.LENGTH_LONG);
+				FollowerActivity.this.getApplicationContext(),
+				"Failed to update location from server", Toast.LENGTH_LONG);
 		updateTimer = new Timer(true);
 		updateTimer.scheduleAtFixedRate(new TimerTask() {
 
@@ -263,10 +269,10 @@ public class FollowerActivity extends Activity {
 						i = tryout * 2;
 					} catch (IOException e) {
 						e.printStackTrace();
-						//Looper.prepare();
-						//Toast toast = Toast.makeText(
-						//		FollowerActivity.this.getApplicationContext(),
-						//		e.getMessage(), Toast.LENGTH_LONG);
+						// Looper.prepare();
+						// Toast toast = Toast.makeText(
+						// FollowerActivity.this.getApplicationContext(),
+						// e.getMessage(), Toast.LENGTH_LONG);
 						toast.show();
 					}
 				}
@@ -294,12 +300,12 @@ public class FollowerActivity extends Activity {
 		latitude = Double.parseDouble(tk.nextToken());
 		longitude = Double.parseDouble(tk.nextToken());
 		setLeaderLocation(latitude, longitude);
-
 	}
 
 	private void setMyLocation(double lat, double lng) {
 		myloc_LL.equals(new LatLng(lat, lng));
 	}
+
 	private void setLeaderLocation(double lat, double lng) {
 		leaderloc.equals(new LatLng(lat, lng));
 	}
