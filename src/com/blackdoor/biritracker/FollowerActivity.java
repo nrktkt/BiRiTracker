@@ -71,13 +71,14 @@ public class FollowerActivity extends Activity {
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
-
+	private LatLng leaderloc;
 	private Timer updateTimer;
 	private String rideName;
 	// private LatLng lastGoodLoc;
 	private double latitude;
 	private double longitude;
 	private Socket connection;
+	private GoogleMap map;
 	private BiRiMapManipulator mapman;
 
 	Handler mMapHandler = new Handler();
@@ -85,7 +86,8 @@ public class FollowerActivity extends Activity {
 
 		@Override
 		public void run() {
-			addAndmanageMarkers();
+			//TODO get location and update that bad boy
+			mapman.addAndmanageMarkers(leaderloc);
 		}
 
 	};
@@ -176,9 +178,9 @@ public class FollowerActivity extends Activity {
 		uiHiderStuff();
 		setupTimer(4);
 		
-		mapman = new BiRiMapManipulator(Role.FOLLOW);
+		
 		setupMap();
-		setupLocListener();
+		//setupLocListener();
 	}
 
 	@Override
@@ -190,13 +192,36 @@ public class FollowerActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		mapman.setupMap();
+		setupMap();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 
+	}
+	
+	public void setupMap() {
+		setUpMapIfNeeded();
+		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+		map.setMyLocationEnabled(true);
+		mapman = new BiRiMapManipulator(Role.FOLLOW,map);
+
+	}
+
+	public void setUpMapIfNeeded() {
+		// Do a null check to confirm that we have not already instantiated the
+		// map.
+		if (map == null) {
+			map = ((MapFragment) getFragmentManager()
+					.findFragmentById(R.id.map)).getMap();
+
+			// Check if we were successful in obtaining the map.
+			if (map != null) {
+				// The Map is verified. It is now safe to manipulate the map.
+
+			}
+		}
 	}
 
 	private void setupTimer(int x) {
@@ -250,7 +275,7 @@ public class FollowerActivity extends Activity {
 		latitude = Double.parseDouble(tk.nextToken());
 		longitude = Double.parseDouble(tk.nextToken());
 		System.out.println(latitude + " " + longitude);
-		setLeaderLocation(latitude, longitude);
+		mapman.setLeaderLocation(latitude, longitude);
 		mMapHandler.post(mMapRunnable);
 	}
 

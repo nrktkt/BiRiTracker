@@ -13,13 +13,21 @@ import java.util.TimerTask;
 import pref.prefrences;
 import server.BiRiServer;
 
+import com.blackdoor.biritracker.BiRiMapManipulator.Role;
 import com.blackdoor.biritracker.util.SystemUiHider;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -70,12 +78,15 @@ public class LeaderActivity extends Activity {
 	
 	private String rideName;
 	private String devID;
-	//private LatLng lastGoodLoc;
+	private LatLng lastGoodLoc;
+	private Location mylocation;
 	private double latitude;
 	private double longitude;
 	private Socket connection;
 	private Timer updateTimer;
-	
+	private GoogleMap map;
+	private BiRiMapManipulator mapman;
+	private LocationManager locationManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -100,16 +111,76 @@ public class LeaderActivity extends Activity {
 				e.printStackTrace();
 			}
 		}
+		
 		setupTimer(tryout);
+		setupMap();
+		setupLocation();
 		
 	}
-
+	
+	@Override
 	protected void onStart(){
 		super.onStart();
 		
 		
 	}
 	
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		setupMap();
+	}
+	
+	public void setupMap() {
+		setUpMapIfNeeded();
+		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+		map.setMyLocationEnabled(true);
+		mapman = new BiRiMapManipulator(Role.FOLLOW,map);
+
+	}
+	
+	private void setupLocation(){
+		// Acquire a reference to the system Location Manager
+		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+		
+		// Define a listener that responds to location updates
+		LocationListener locationListener = new LocationListener() {
+		    public void onLocationChanged(Location location) {
+		     
+		    	lastGoodLoc = new LatLng(location.getLatitude(),location.getLongitude());
+		    }
+			public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+		    public void onProviderEnabled(String provider) {}
+
+		    public void onProviderDisabled(String provider) {}
+		  };
+
+		// Register the listener with the Location Manager to receive location updates
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+	}
+
+	public void setUpMapIfNeeded() {
+		// Do a null check to confirm that we have not already instantiated the
+		// map.
+		if (map == null) {
+			map = ((MapFragment) getFragmentManager()
+					.findFragmentById(R.id.map)).getMap();
+
+			// Check if we were successful in obtaining the map.
+			if (map != null) {
+				// The Map is verified. It is now safe to manipulate the map.
+
+			}
+		}
+	}
+
 	private void setupTimer(int x){
 		System.out.println("ride created");
 		final int tryout = x;
@@ -193,8 +264,12 @@ public class LeaderActivity extends Activity {
 	
 	
 	}
+	
 	private void updateLocation(){
-		
+		//TODO put some stuff here to get location!!
+		mapman.addAndmanageMarkers(lastGoodLoc);
+		latitude = mylocation.getLatitude();
+		longitude = mylocation.getLongitude();
 	}
 	
 	private void updateLocationOnServer() throws IOException{
@@ -294,7 +369,7 @@ public class LeaderActivity extends Activity {
 	//just get that all out of the way...
 	private void fullScreenShiznitFromOnCreate(){
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
-		final View contentView = findViewById(R.id.fullscreen_content);
+		final View contentView = findViewById(R.id.map);
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
