@@ -15,9 +15,14 @@ import server.BiRiServer;
 import com.blackdoor.biritracker.util.SystemUiHider;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.LatLng;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -70,6 +75,36 @@ public class FollowerActivity extends Activity {
 	private double longitude;
 	private Socket connection;
 	private GoogleMap map;
+	private LatLng myloc_LL;
+	private Location myloc_L;
+	private LocationManager mLocationManager;
+	private final long LOCATION_REFRESH_TIME = 10000;
+	private final float LOCATION_REFRESH_DISTANCE = 10000;
+	
+	private final LocationListener mLocationListener = new LocationListener() {
+	    @Override
+	    public void onLocationChanged(final Location location) {
+	        //your code here
+	    }
+
+		@Override
+		public void onProviderDisabled(String arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onProviderEnabled(String provider) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+			// TODO Auto-generated method stub
+			
+		}
+	};
 
 	public Handler mMapHandler = new Handler() {
 		public void handleMessage(Message msg) {
@@ -152,11 +187,19 @@ public class FollowerActivity extends Activity {
 		uiHiderStuff();
 		setupTimer(4);
 		setupMap();
+		setupLocListener();
 	}
+	
+	private void setupLocListener(){
+	    mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
+	    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
+	            LOCATION_REFRESH_DISTANCE, mLocationListener);
+	}
 	private void setupMap(){
 		setUpMapIfNeeded();
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+		//map.UiSettings.setZoomControlsEnabled(false);
 	}
 
 	private void setUpMapIfNeeded() {
