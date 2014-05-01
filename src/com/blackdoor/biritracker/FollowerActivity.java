@@ -13,6 +13,7 @@ import java.util.TimerTask;
 import pref.prefrences;
 import server.BiRiServer;
 
+import com.blackdoor.biritracker.BiRiMapManipulator.Role;
 import com.blackdoor.biritracker.util.SystemUiHider;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -30,7 +31,6 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem;
@@ -78,40 +78,7 @@ public class FollowerActivity extends Activity {
 	private double latitude;
 	private double longitude;
 	private Socket connection;
-	private GoogleMap map;
-	private LatLng myloc_LL;
-	private Location myloc_L;
-	private LocationManager mLocationManager;
-	private final long LOCATION_REFRESH_TIME = 10000;
-	private final float LOCATION_REFRESH_DISTANCE = 10000;
-	private LatLng leaderloc;
-	private CameraPosition campos;
-	private ArrayList<Marker> leaderloclist = new ArrayList<Marker>();
-
-	private final LocationListener mLocationListener = new LocationListener() {
-		@Override
-		public void onLocationChanged(final Location location) {
-			// your code here
-		}
-
-		@Override
-		public void onProviderDisabled(String arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onProviderEnabled(String provider) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onStatusChanged(String provider, int status, Bundle extras) {
-			// TODO Auto-generated method stub
-
-		}
-	};
+	private BiRiMapManipulator mapman;
 
 	Handler mMapHandler = new Handler();
 	Runnable mMapRunnable = new Runnable() {
@@ -123,26 +90,6 @@ public class FollowerActivity extends Activity {
 
 	};
 
-	private void addAndmanageMarkers() {
-		// keep the current and last ten points around
-		Marker marker = map.addMarker(new MarkerOptions().position(leaderloc));
-		if (leaderloclist.size() > 10) {
-			leaderloclist.add(0, marker);
-			leaderloclist.remove(9);
-		} else {
-			leaderloclist.add(0, marker);
-		}
-		// disappearing points to look cool
-		float alpha = 1;
-		for (int i = 0; i < leaderloclist.size(); i++) {
-			leaderloclist.get(i).setAlpha(alpha);
-			alpha -= .1;
-		}
-	}
-
-	private void positionCamera() {
-		// TODO figure out the camera stuff!!
-	}
 
 	private void uiHiderStuff() {
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
@@ -228,7 +175,8 @@ public class FollowerActivity extends Activity {
 		setupActionBar();
 		uiHiderStuff();
 		setupTimer(4);
-
+		
+		mapman = new BiRiMapManipulator(Role.FOLLOW);
 		setupMap();
 		setupLocListener();
 	}
@@ -242,43 +190,13 @@ public class FollowerActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		setupMap();
+		mapman.setupMap();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 
-	}
-
-	private void setupLocListener() {
-		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-				LOCATION_REFRESH_TIME, LOCATION_REFRESH_DISTANCE,
-				mLocationListener);
-	}
-
-	private void setupMap() {
-		setUpMapIfNeeded();
-		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		map.setMyLocationEnabled(true);
-
-	}
-
-	private void setUpMapIfNeeded() {
-		// Do a null check to confirm that we have not already instantiated the
-		// map.
-		if (map == null) {
-			map = ((MapFragment) getFragmentManager()
-					.findFragmentById(R.id.map)).getMap();
-
-			// Check if we were successful in obtaining the map.
-			if (map != null) {
-				// The Map is verified. It is now safe to manipulate the map.
-
-			}
-		}
 	}
 
 	private void setupTimer(int x) {
@@ -336,12 +254,7 @@ public class FollowerActivity extends Activity {
 		mMapHandler.post(mMapRunnable);
 	}
 
-	private void setLeaderLocation(double lat, double lng) {
-		//sometimes you know what youre doing. 
-		//sometimes you know what youre doing but you just do it wrong. 
-		//what's important is that we all learned something here. 
-		leaderloc = new LatLng(lat, lng);
-	}
+
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
