@@ -114,17 +114,17 @@ public class FollowerActivity extends Activity {
 	};
 
 	Handler mMapHandler = new Handler();
-	Runnable mMapRunnable = new Runnable(){
+	Runnable mMapRunnable = new Runnable() {
 
 		@Override
 		public void run() {
 			addAndmanageMarkers();
 		}
-		
+
 	};
 
 	private void addAndmanageMarkers() {
-		//keep the current and last ten points around
+		// keep the current and last ten points around
 		Marker marker = map.addMarker(new MarkerOptions().position(leaderloc));
 		if (leaderloclist.size() > 10) {
 			leaderloclist.add(0, marker);
@@ -132,18 +132,18 @@ public class FollowerActivity extends Activity {
 		} else {
 			leaderloclist.add(0, marker);
 		}
-		//disappearing points to look cool
+		// disappearing points to look cool
 		float alpha = 1;
-		for (int i = 0; i < leaderloclist.size();i++){
-		leaderloclist.get(i).setAlpha(alpha);
-			alpha-=.1;
+		for (int i = 0; i < leaderloclist.size(); i++) {
+			leaderloclist.get(i).setAlpha(alpha);
+			alpha -= .1;
 		}
 	}
-	
-	private void positionCamera(){
-		//TODO figure out the camera stuff!!
+
+	private void positionCamera() {
+		// TODO figure out the camera stuff!!
 	}
-	
+
 	private void uiHiderStuff() {
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.map);
@@ -221,10 +221,10 @@ public class FollowerActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_follower);
-		
+
 		Intent i = getIntent();
 		rideName = i.getStringExtra(SelectActivity.RIDE_NAME_EXTRA);
-		
+
 		setupActionBar();
 		uiHiderStuff();
 		setupTimer(4);
@@ -272,7 +272,7 @@ public class FollowerActivity extends Activity {
 		if (map == null) {
 			map = ((MapFragment) getFragmentManager()
 					.findFragmentById(R.id.map)).getMap();
-			
+
 			// Check if we were successful in obtaining the map.
 			if (map != null) {
 				// The Map is verified. It is now safe to manipulate the map.
@@ -316,7 +316,7 @@ public class FollowerActivity extends Activity {
 		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				connection.getInputStream()));
-		//System.out.println(rideName);
+		// System.out.println(rideName);
 		out.println(BiRiServer.Codes.REQUEST.name() + prefrences.NULL
 				+ rideName + prefrences.NULL);
 
@@ -328,7 +328,7 @@ public class FollowerActivity extends Activity {
 		if (!tk.nextToken().equalsIgnoreCase(BiRiServer.Codes.LOC.name())) {
 			throw new IOException("Failed to update location from server");
 		}
-		
+
 		latitude = Double.parseDouble(tk.nextToken());
 		longitude = Double.parseDouble(tk.nextToken());
 		System.out.println(latitude + " " + longitude);
@@ -337,9 +337,11 @@ public class FollowerActivity extends Activity {
 	}
 
 	private void setLeaderLocation(double lat, double lng) {
-		//leaderloc.equals(new LatLng(lat, lng));// THIS IS NOT HOW THIS GODDAMN WORKS!
-			//FOR F!@K's SAKE IT RETURNS A BOOLEAN, HOW DID YOU CONFUSE .equals WITH = ?????
-		leaderloc = new LatLng(lat,lng);
+		// leaderloc.equals(new LatLng(lat, lng));// THIS IS NOT HOW THIS
+		// GODDAMN WORKS!
+		// FOR F!@K's SAKE IT RETURNS A BOOLEAN, HOW DID YOU CONFUSE .equals
+		// WITH = ?????
+		leaderloc = new LatLng(lat, lng);
 	}
 
 	@Override
