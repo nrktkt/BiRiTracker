@@ -26,6 +26,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
@@ -114,7 +115,7 @@ public class FollowerActivity extends Activity {
 
 	private void uiHiderStuff() {
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
-		final View contentView = findViewById(R.id.fullscreen_content);
+		final View contentView = findViewById(R.id.map);
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
 		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
@@ -219,6 +220,10 @@ public class FollowerActivity extends Activity {
 	private void setupTimer(int x) {
 		System.out.println("ride created");
 		final int tryout = x;
+		
+		final Toast toast = Toast.makeText(
+						FollowerActivity.this.getApplicationContext(),
+						"Failed to update location from server", Toast.LENGTH_LONG);
 		updateTimer = new Timer(true);
 		updateTimer.scheduleAtFixedRate(new TimerTask() {
 
@@ -230,9 +235,10 @@ public class FollowerActivity extends Activity {
 						i = tryout * 2;
 					} catch (IOException e) {
 						e.printStackTrace();
-						Toast toast = Toast.makeText(
-								FollowerActivity.this.getApplicationContext(),
-								e.getMessage(), Toast.LENGTH_LONG);
+						//Looper.prepare();
+						//Toast toast = Toast.makeText(
+						//		FollowerActivity.this.getApplicationContext(),
+						//		e.getMessage(), Toast.LENGTH_LONG);
 						toast.show();
 					}
 				}

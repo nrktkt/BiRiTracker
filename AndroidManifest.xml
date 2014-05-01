@@ -38,7 +38,7 @@
         
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyDgwrRhdZkF817_bhg14voATV1Hw-xEzbw" />
+            android:value="AIzaSyCZeY2zC5ICEp-QNCEaOgzm3wj0rxIRikQ" />
 
         <activity
             android:name="com.blackdoor.biritracker.WelcomeActivity"
