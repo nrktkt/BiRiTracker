@@ -16,6 +16,7 @@ import com.blackdoor.biritracker.util.SystemUiHider;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.annotation.TargetApi;
@@ -81,29 +82,31 @@ public class FollowerActivity extends Activity {
 	private LocationManager mLocationManager;
 	private final long LOCATION_REFRESH_TIME = 10000;
 	private final float LOCATION_REFRESH_DISTANCE = 10000;
-	
+	private LatLng leaderloc;
+	private CameraPosition campos;
+
 	private final LocationListener mLocationListener = new LocationListener() {
-	    @Override
-	    public void onLocationChanged(final Location location) {
-	        //your code here
-	    }
+		@Override
+		public void onLocationChanged(final Location location) {
+			// your code here
+		}
 
 		@Override
 		public void onProviderDisabled(String arg0) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void onProviderEnabled(String provider) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void onStatusChanged(String provider, int status, Bundle extras) {
 			// TODO Auto-generated method stub
-			
+
 		}
 	};
 
@@ -190,17 +193,37 @@ public class FollowerActivity extends Activity {
 		setupMap();
 		setupLocListener();
 	}
-	
-	private void setupLocListener(){
-	    mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-	    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
-	            LOCATION_REFRESH_DISTANCE, mLocationListener);
+	@Override
+	protected void onPause() {
+		super.onPause();
+
 	}
-	private void setupMap(){
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		setupMap();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+	}
+
+	private void setupLocListener() {
+		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+				LOCATION_REFRESH_TIME, LOCATION_REFRESH_DISTANCE,
+				mLocationListener);
+	}
+
+	private void setupMap() {
 		setUpMapIfNeeded();
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		//map.UiSettings.setZoomControlsEnabled(false);
+		// map.UiSettings.setZoomControlsEnabled(false);
 	}
 
 	private void setUpMapIfNeeded() {
@@ -265,7 +288,15 @@ public class FollowerActivity extends Activity {
 		}
 		latitude = Double.parseDouble(tk.nextToken());
 		longitude = Double.parseDouble(tk.nextToken());
+		setLeaderLocation(latitude, longitude);
 
+	}
+
+	private void setMyLocation(double lat, double lng) {
+		myloc_LL.equals(new LatLng(lat, lng));
+	}
+	private void setLeaderLocation(double lat, double lng) {
+		leaderloc.equals(new LatLng(lat, lng));
 	}
 
 	@Override
