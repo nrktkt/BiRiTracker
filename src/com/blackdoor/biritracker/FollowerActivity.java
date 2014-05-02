@@ -77,8 +77,14 @@ public class FollowerActivity extends Activity {
 	private Timer updateTimer
 	private LatLng myLoc;;
 	private String rideName;
+<<<<<<< HEAD
 	private double latitude;
 	private double longitude;
+=======
+	// private LatLng lastGoodLoc;
+	//private double latitude;
+	//private double longitude;
+>>>>>>> 16f7cf883b624947ab7562890ca25a9e6f4da26f
 	private Socket connection;
 	private GoogleMap map;
 	private BiRiMapManipulator mapman;
@@ -183,10 +189,11 @@ public class FollowerActivity extends Activity {
 
 		setupActionBar();
 		uiHiderStuff();
-		setupTimer(4);
+		
 		
 		
 		setupMap();
+<<<<<<< HEAD
 		setupLocation();
 	}
 	
@@ -220,6 +227,11 @@ public class FollowerActivity extends Activity {
 		//latitude = mylocation.getLatitude();
 		//longitude = mylocation.getLongitude();
 		mapman.setFollowerLocation(myLoc);
+=======
+		
+		setupTimer(4);
+		//setupLocListener();
+>>>>>>> 16f7cf883b624947ab7562890ca25a9e6f4da26f
 	}
 
 	@Override
@@ -309,8 +321,9 @@ public class FollowerActivity extends Activity {
 			throw new IOException("Failed to update location from server");
 		}
 
-		latitude = Double.parseDouble(tk.nextToken());
-		longitude = Double.parseDouble(tk.nextToken());
+		double latitude = Double.parseDouble(tk.nextToken());
+		double longitude = Double.parseDouble(tk.nextToken());
+		leaderloc = new LatLng(latitude, longitude);
 		System.out.println(latitude + " " + longitude);
 		//update both leader and follower so that map pos will be correct
 		mapman.setLeaderLocation(latitude, longitude);

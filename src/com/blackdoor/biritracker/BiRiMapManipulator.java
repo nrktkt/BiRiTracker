@@ -37,8 +37,8 @@ public class BiRiMapManipulator {
 		//FOLLOW manage
 		if (role == Role.FOLLOW) {
 			// keep the last 5 points around
-			Marker marker = map.addMarker(new MarkerOptions()
-					.position(newloc));
+			MarkerOptions options = new MarkerOptions().position(newloc);
+			Marker marker = map.addMarker(options);
 			if (leaderloclist.size() > 5) {
 				leaderloclist.add(0, marker);
 				leaderloclist.remove(4);

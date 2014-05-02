@@ -113,22 +113,35 @@ public class LeaderActivity extends Activity {
 		
 		devID = Secure.getString(getBaseContext().getContentResolver(),
                 Secure.ANDROID_ID);
+		
 		final int tryout = 6;
+		
+		setupMap();
+		setupLocation();
+		createRide(tryout);
+		setupTimer(tryout);
+	}
+	
+	private void createRide(int tryout){
 		for(int iz = 0; iz<tryout; iz++){
 			try {
 				createRide();
 				iz=tryout*2;
+				System.out.println("rideCreated");
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+<<<<<<< HEAD
 		
 		setupTimer(tryout);
 		setupLocation();
 		setupMap();
 		
 		
+=======
+>>>>>>> 16f7cf883b624947ab7562890ca25a9e6f4da26f
 	}
 	
 	@Override
