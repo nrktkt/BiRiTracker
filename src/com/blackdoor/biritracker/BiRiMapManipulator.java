@@ -4,9 +4,11 @@ import java.util.ArrayList;
 
 import android.location.Location;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -20,18 +22,22 @@ public class BiRiMapManipulator {
 	private Role role;
 	private GoogleMap map;
 	private LatLng myloc_LL;
-	private Location myloc_L;
-	private final long LOCATION_REFRESH_TIME = 10000;
-	private final float LOCATION_REFRESH_DISTANCE = 10000;
 	private LatLng lastleaderloc;
 	private CameraPosition campos;
+	private LatLngBounds bounds;
+	private int zoom;
 	private ArrayList<Marker> leaderloclist = new ArrayList<Marker>();
 
-	public BiRiMapManipulator(Role myrole, GoogleMap mymap) {
+	public BiRiMapManipulator(Role myrole, GoogleMap mymap,LatLng init) {
 		role = myrole;
 		map = mymap;
+		addAndmanageMarkers(init);
+		positionCamera(init);
 	}
-
+	public void init(LatLng loc){
+		
+	}
+	
 	public void addAndmanageMarkers(LatLng newloc) {
 		//FOLLOW manage
 		if (role == Role.FOLLOW) {
@@ -71,16 +77,24 @@ public class BiRiMapManipulator {
 	
 	
 
-	private void positionCamera() {
+	private void positionCamera(LatLng pos) {
 		//FOLLOW camera
 		if (role == Role.FOLLOW) {
-
+			bounds = new LatLngBounds(pos, lastleaderloc);
+			map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 5));
 		} else { 
-			//LEADER camera 
-				
+			map.moveCamera(CameraUpdateFactory.newLatLng(pos));	
 		}
 	}
+	
+	public void setFollowerLocation(double lat, double lng) {
+		myloc_LL = new LatLng(lat, lng);
+	}
 
+	public void setFollowerLocation(LatLng pos) {
+		myloc_LL = pos;
+	}
+	
 	public void setLeaderLocation(double lat, double lng) {
 		lastleaderloc = new LatLng(lat, lng);
 	}
