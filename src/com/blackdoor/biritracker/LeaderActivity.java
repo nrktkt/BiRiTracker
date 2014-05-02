@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,14 +24,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.view.MotionEvent;
 import android.view.View;
@@ -79,14 +77,25 @@ public class LeaderActivity extends Activity {
 	private String rideName;
 	private String devID;
 	private LatLng lastGoodLoc;
-	private Location mylocation;
-	private double latitude;
-	private double longitude;
+	//private Location mylocation;
+	//private double latitude;
+	//private double longitude;
 	private Socket connection;
 	private Timer updateTimer;
 	private GoogleMap map;
 	private BiRiMapManipulator mapman;
 	private LocationManager locationManager;
+	private Criteria locCriteria;
+	
+	Handler mMapHandler = new Handler();
+	Runnable mMapRunnable = new Runnable() {
+
+		@Override
+		public void run() {
+			//TODO get location and update that bad boy
+			mapman.addAndmanageMarkers(lastGoodLoc);
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +104,9 @@ public class LeaderActivity extends Activity {
 		setContentView(R.layout.activity_leader);
 		setupActionBar();
 		fullScreenShiznitFromOnCreate();
+		
+		locCriteria = new Criteria();
+		locCriteria.setAccuracy(Criteria.ACCURACY_FINE);
 		
 		Intent i = getIntent();
 		rideName = i.getStringExtra("RIDE_NAME");
@@ -149,7 +161,9 @@ public class LeaderActivity extends Activity {
 		// Acquire a reference to the system Location Manager
 		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 		
-		// Define a listener that responds to location updates
+		
+		//let's get location only on updates, maybe more battery efficient.
+		/*// Define a listener that responds to location updates
 		LocationListener locationListener = new LocationListener() {
 		    public void onLocationChanged(Location location) {
 		     
@@ -163,7 +177,7 @@ public class LeaderActivity extends Activity {
 		  };
 
 		// Register the listener with the Location Manager to receive location updates
-		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);*/
 	}
 
 	public void setUpMapIfNeeded() {
@@ -206,8 +220,8 @@ public class LeaderActivity extends Activity {
 	
 	private void createRide() throws Exception{
 		updateLocation();
-		final double lat = latitude;
-		final double lng = longitude;
+		//final double lat = latitude;
+		//final double lng = longitude;
 		AsyncTask<String, Void, String> socketTask = new AsyncTask<String, Void, String>(){
 
 			@Override
@@ -221,8 +235,8 @@ public class LeaderActivity extends Activity {
 					out.println(BiRiServer.Codes.CREATE.name() + prefrences.NULL + 
 							rideName + prefrences.NULL + 
 							devID + prefrences.NULL +
-							latitude + prefrences.NULL +//TODO
-							longitude + prefrences.NULL//TODO
+							lastGoodLoc.latitude + prefrences.NULL +
+							lastGoodLoc.longitude + prefrences.NULL
 							);
 					ret = in.readLine();
 					connection.close();
@@ -267,21 +281,23 @@ public class LeaderActivity extends Activity {
 	
 	private void updateLocation(){
 		//TODO put some stuff here to get location!!
-		mapman.addAndmanageMarkers(lastGoodLoc);
-		latitude = mylocation.getLatitude();
-		longitude = mylocation.getLongitude();
+		Location currentLoc = locationManager.getLastKnownLocation(locationManager.getBestProvider(locCriteria, true));
+		lastGoodLoc = new LatLng(currentLoc.getLatitude(), currentLoc.getLongitude());
+		//latitude = mylocation.getLatitude();
+		//longitude = mylocation.getLongitude();
 	}
 	
 	private void updateLocationOnServer() throws IOException{
 		updateLocation();
+		mMapHandler.post(mMapRunnable);//mapman.addAndmanageMarkers(lastGoodLoc);
 		connection = connectToServer();
 		PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
 		BufferedReader in = new BufferedReader(
 		        new InputStreamReader(connection.getInputStream()));
 		out.println(BiRiServer.Codes.SUBMIT.name() + prefrences.NULL +
 				devID + prefrences.NULL +
-				latitude + prefrences.NULL +
-				longitude + prefrences.NULL);
+				lastGoodLoc.latitude + prefrences.NULL +
+				lastGoodLoc.longitude + prefrences.NULL);
 		
 		StringTokenizer tk = new StringTokenizer(in.readLine(), ""+prefrences.NULL);
 		if(!tk.nextToken().equalsIgnoreCase(BiRiServer.Codes.OK.name())){
