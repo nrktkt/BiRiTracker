@@ -28,16 +28,11 @@ public class BiRiMapManipulator {
 	private int zoom;
 	private ArrayList<Marker> leaderloclist = new ArrayList<Marker>();
 
-	public BiRiMapManipulator(Role myrole, GoogleMap mymap,LatLng init) {
+	public BiRiMapManipulator(Role myrole, GoogleMap mymap) {
 		role = myrole;
 		map = mymap;
-		addAndmanageMarkers(init);
-		positionCamera(init);
 	}
-	public void init(LatLng loc){
-		
-	}
-	
+
 	public void addAndmanageMarkers(LatLng newloc) {
 		//FOLLOW manage
 		if (role == Role.FOLLOW) {

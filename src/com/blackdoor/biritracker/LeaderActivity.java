@@ -125,8 +125,9 @@ public class LeaderActivity extends Activity {
 		}
 		
 		setupTimer(tryout);
-		setupMap();
 		setupLocation();
+		setupMap();
+		
 		
 	}
 	

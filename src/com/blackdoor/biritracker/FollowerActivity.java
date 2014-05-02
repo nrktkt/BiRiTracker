@@ -24,7 +24,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -72,14 +74,16 @@ public class FollowerActivity extends Activity {
 	 */
 	private SystemUiHider mSystemUiHider;
 	private LatLng leaderloc;
-	private Timer updateTimer;
+	private Timer updateTimer
+	private LatLng myLoc;;
 	private String rideName;
-	// private LatLng lastGoodLoc;
 	private double latitude;
 	private double longitude;
 	private Socket connection;
 	private GoogleMap map;
 	private BiRiMapManipulator mapman;
+	private LocationManager locationManager;
+	private Criteria locCriteria;
 
 	Handler mMapHandler = new Handler();
 	Runnable mMapRunnable = new Runnable() {
@@ -170,7 +174,10 @@ public class FollowerActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_follower);
-
+		
+		locCriteria = new Criteria();
+		locCriteria.setAccuracy(Criteria.ACCURACY_FINE);
+		
 		Intent i = getIntent();
 		rideName = i.getStringExtra(SelectActivity.RIDE_NAME_EXTRA);
 
@@ -180,7 +187,39 @@ public class FollowerActivity extends Activity {
 		
 		
 		setupMap();
-		//setupLocListener();
+		setupLocation();
+	}
+	
+	private void setupLocation(){
+		// Acquire a reference to the system Location Manager
+		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+		
+		
+		//let's get location only on updates, maybe more battery efficient.
+		/*// Define a listener that responds to location updates
+		LocationListener locationListener = new LocationListener() {
+		    public void onLocationChanged(Location location) {
+		     
+		    	lastGoodLoc = new LatLng(location.getLatitude(),location.getLongitude());
+		    }
+			public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+		    public void onProviderEnabled(String provider) {}
+
+		    public void onProviderDisabled(String provider) {}
+		  };
+
+		// Register the listener with the Location Manager to receive location updates
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);*/
+	}
+	
+	private void updateLocation(){
+		//TODO put some stuff here to get location!!
+		Location currentLoc = locationManager.getLastKnownLocation(locationManager.getBestProvider(locCriteria, true));
+		myLoc = new LatLng(currentLoc.getLatitude(), currentLoc.getLongitude());
+		//latitude = mylocation.getLatitude();
+		//longitude = mylocation.getLongitude();
+		mapman.setFollowerLocation(myLoc);
 	}
 
 	@Override
@@ -215,11 +254,9 @@ public class FollowerActivity extends Activity {
 		if (map == null) {
 			map = ((MapFragment) getFragmentManager()
 					.findFragmentById(R.id.map)).getMap();
-
 			// Check if we were successful in obtaining the map.
 			if (map != null) {
 				// The Map is verified. It is now safe to manipulate the map.
-
 			}
 		}
 	}
@@ -275,7 +312,9 @@ public class FollowerActivity extends Activity {
 		latitude = Double.parseDouble(tk.nextToken());
 		longitude = Double.parseDouble(tk.nextToken());
 		System.out.println(latitude + " " + longitude);
+		//update both leader and follower so that map pos will be correct
 		mapman.setLeaderLocation(latitude, longitude);
+		updateLocation();
 		mMapHandler.post(mMapRunnable);
 	}
 
