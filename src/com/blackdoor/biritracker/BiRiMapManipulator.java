@@ -28,7 +28,7 @@ public class BiRiMapManipulator {
 	private LatLngBounds bounds;
 	private int zoom;
 	private ArrayList<Marker> leaderloclist = new ArrayList<Marker>();
-	final private String custom_icon = "/BiRiTracker/res/drawable-mdpi/circle_icon.png";
+	//final private String custom_icon = "/BiRiTracker/res/drawable-mdpi/circle_icon.png";
 
 	public BiRiMapManipulator(Role myrole, GoogleMap mymap) {
 		role = myrole;
@@ -37,9 +37,10 @@ public class BiRiMapManipulator {
 
 	public void addAndmanageMarkers(LatLng newloc) {
 		lastleaderloc = newloc;
+		MarkerOptions options = new MarkerOptions().position(newloc).icon(BitmapDescriptorFactory.fromResource(R.drawable.circle_icon4)).anchor(0.5f, 0.5f);
 		if (role == Role.FOLLOW) {
 			// keep the last 5 points around
-			MarkerOptions options = new MarkerOptions().position(newloc).icon(BitmapDescriptorFactory.fromResource(R.drawable.circle_icon3)).anchor(0.5f, 0.5f);
+			
 			Marker marker = map.addMarker(options);
 			if (leaderloclist.size() > 5) {
 				leaderloclist.add(0, marker);
@@ -55,8 +56,7 @@ public class BiRiMapManipulator {
 			}
 		} else { 
 			// keep the last 5 points around
-			Marker marker = map.addMarker(new MarkerOptions()
-					.position(newloc).icon(BitmapDescriptorFactory.fromFile(custom_icon)));
+			Marker marker = map.addMarker(options);
 			if (leaderloclist.size() > 5) {
 				leaderloclist.add(0, marker);
 				leaderloclist.remove(4);
@@ -70,6 +70,10 @@ public class BiRiMapManipulator {
 				alpha -= .15;
 			}	
 		}
+	}
+	
+	public void centerCamera(LatLng loc){
+		map.moveCamera(CameraUpdateFactory.newLatLng(loc));
 	}
 	
 	

@@ -15,6 +15,7 @@ import server.BiRiServer;
 
 import com.blackdoor.biritracker.BiRiMapManipulator.Role;
 import com.blackdoor.biritracker.util.SystemUiHider;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -77,8 +78,8 @@ public class FollowerActivity extends Activity {
 	private Timer updateTimer;
 	private LatLng myLoc;
 	private String rideName;
-	private double latitude;
-	private double longitude;
+	//private double latitude;
+	//private double longitude;
 
 	private Socket connection;
 	private GoogleMap map;
@@ -186,9 +187,9 @@ public class FollowerActivity extends Activity {
 		uiHiderStuff();
 		
 		
-		
-		setupMap();
 		setupLocation();
+		setupMap();
+		
 		setupTimer(4);
 	}
 	
@@ -213,6 +214,7 @@ public class FollowerActivity extends Activity {
 
 		// Register the listener with the Location Manager to receive location updates
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);*/
+		
 	}
 	
 	private void updateLocation(){
@@ -250,7 +252,9 @@ public class FollowerActivity extends Activity {
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		map.setMyLocationEnabled(true);
 		mapman = new BiRiMapManipulator(Role.FOLLOW,map);
-
+		updateLocation();
+		//map.moveCamera(CameraUpdateFactory.newLatLng(myLoc));
+		map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLoc, 15));
 	}
 
 	public void setUpMapIfNeeded() {

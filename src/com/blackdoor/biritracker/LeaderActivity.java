@@ -14,6 +14,7 @@ import server.BiRiServer;
 
 import com.blackdoor.biritracker.BiRiMapManipulator.Role;
 import com.blackdoor.biritracker.util.SystemUiHider;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -117,9 +118,9 @@ public class LeaderActivity extends Activity {
                 Secure.ANDROID_ID);
 		
 		final int tryout = 6;
-		
-		setupMap();
 		setupLocation();
+		setupMap();
+		
 		createRide(tryout);
 		setupTimer(tryout);
 	}
@@ -136,9 +137,9 @@ public class LeaderActivity extends Activity {
 			}
 		}
 		
-		setupTimer(tryout);
-		setupLocation();
-		setupMap();
+		//setupTimer(tryout);
+		//setupLocation();
+		//setupMap();
 	}
 	
 	@Override
@@ -165,6 +166,8 @@ public class LeaderActivity extends Activity {
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		map.setMyLocationEnabled(true);
 		mapman = new BiRiMapManipulator(Role.FOLLOW,map);
+		updateLocation();
+		map.moveCamera(CameraUpdateFactory.newLatLngZoom(lastGoodLoc, 15));
 
 	}
 	
