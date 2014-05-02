@@ -56,7 +56,7 @@ public class BiRiMapManipulator {
 		} else { 
 			// keep the last 5 points around
 			Marker marker = map.addMarker(new MarkerOptions()
-					.position(newloc));
+					.position(newloc).icon(BitmapDescriptorFactory.fromFile(custom_icon)));
 			if (leaderloclist.size() > 5) {
 				leaderloclist.add(0, marker);
 				leaderloclist.remove(4);
