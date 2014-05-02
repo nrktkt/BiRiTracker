@@ -133,15 +133,10 @@ public class LeaderActivity extends Activity {
 				e.printStackTrace();
 			}
 		}
-<<<<<<< HEAD
 		
 		setupTimer(tryout);
 		setupLocation();
 		setupMap();
-		
-		
-=======
->>>>>>> 16f7cf883b624947ab7562890ca25a9e6f4da26f
 	}
 	
 	@Override

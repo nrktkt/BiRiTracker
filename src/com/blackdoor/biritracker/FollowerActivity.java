@@ -74,17 +74,12 @@ public class FollowerActivity extends Activity {
 	 */
 	private SystemUiHider mSystemUiHider;
 	private LatLng leaderloc;
-	private Timer updateTimer
-	private LatLng myLoc;;
+	private Timer updateTimer;
+	private LatLng myLoc;
 	private String rideName;
-<<<<<<< HEAD
 	private double latitude;
 	private double longitude;
-=======
-	// private LatLng lastGoodLoc;
-	//private double latitude;
-	//private double longitude;
->>>>>>> 16f7cf883b624947ab7562890ca25a9e6f4da26f
+
 	private Socket connection;
 	private GoogleMap map;
 	private BiRiMapManipulator mapman;
@@ -193,7 +188,6 @@ public class FollowerActivity extends Activity {
 		
 		
 		setupMap();
-<<<<<<< HEAD
 		setupLocation();
 	}
 	
@@ -227,11 +221,9 @@ public class FollowerActivity extends Activity {
 		//latitude = mylocation.getLatitude();
 		//longitude = mylocation.getLongitude();
 		mapman.setFollowerLocation(myLoc);
-=======
 		
 		setupTimer(4);
 		//setupLocListener();
->>>>>>> 16f7cf883b624947ab7562890ca25a9e6f4da26f
 	}
 
 	@Override
