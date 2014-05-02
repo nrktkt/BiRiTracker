@@ -189,6 +189,7 @@ public class FollowerActivity extends Activity {
 		
 		setupMap();
 		setupLocation();
+		setupTimer(4);
 	}
 	
 	private void setupLocation(){
@@ -222,7 +223,7 @@ public class FollowerActivity extends Activity {
 		//longitude = mylocation.getLongitude();
 		mapman.setFollowerLocation(myLoc);
 		
-		setupTimer(4);
+		
 		//setupLocListener();
 	}
 

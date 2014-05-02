@@ -39,7 +39,7 @@ public class BiRiMapManipulator {
 		lastleaderloc = newloc;
 		if (role == Role.FOLLOW) {
 			// keep the last 5 points around
-			MarkerOptions options = new MarkerOptions().position(newloc).icon(BitmapDescriptorFactory.fromFile(custom_icon));
+			MarkerOptions options = new MarkerOptions().position(newloc).icon(BitmapDescriptorFactory.fromResource(R.drawable.circle_icon3)).anchor(0.5f, 0.5f);
 			Marker marker = map.addMarker(options);
 			if (leaderloclist.size() > 5) {
 				leaderloclist.add(0, marker);
