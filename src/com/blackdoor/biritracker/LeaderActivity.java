@@ -35,6 +35,7 @@ import android.provider.Settings.Secure;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.Toast;
 import android.support.v4.app.NavUtils;
 
@@ -102,6 +103,7 @@ public class LeaderActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_leader);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setupActionBar();
 		fullScreenShiznitFromOnCreate();
 		
