@@ -6,6 +6,7 @@ import android.location.Location;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -27,6 +28,7 @@ public class BiRiMapManipulator {
 	private LatLngBounds bounds;
 	private int zoom;
 	private ArrayList<Marker> leaderloclist = new ArrayList<Marker>();
+	final private String custom_icon = "/BiRiTracker/res/drawable-mdpi/circle_icon.png";
 
 	public BiRiMapManipulator(Role myrole, GoogleMap mymap) {
 		role = myrole;
@@ -34,10 +36,10 @@ public class BiRiMapManipulator {
 	}
 
 	public void addAndmanageMarkers(LatLng newloc) {
-		//FOLLOW manage
+		lastleaderloc = newloc;
 		if (role == Role.FOLLOW) {
 			// keep the last 5 points around
-			MarkerOptions options = new MarkerOptions().position(newloc);
+			MarkerOptions options = new MarkerOptions().position(newloc).icon(BitmapDescriptorFactory.fromFile(custom_icon));
 			Marker marker = map.addMarker(options);
 			if (leaderloclist.size() > 5) {
 				leaderloclist.add(0, marker);
@@ -71,7 +73,16 @@ public class BiRiMapManipulator {
 	}
 	
 	
-
+	private void positionCamera() {
+		//FOLLOW camera
+		if (role == Role.FOLLOW) {
+			bounds = new LatLngBounds(myloc_LL, lastleaderloc);
+			map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 5));
+		} else { 
+			map.moveCamera(CameraUpdateFactory.newLatLng(lastleaderloc));	
+		}
+	}
+	
 	private void positionCamera(LatLng pos) {
 		//FOLLOW camera
 		if (role == Role.FOLLOW) {
